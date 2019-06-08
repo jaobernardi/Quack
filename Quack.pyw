@@ -6,7 +6,6 @@ from time import sleep
 
 import pygame
 
-pygame.init()
 plataforms = [i for i in range(512)]
 plataforms2 = [i + 512 for i in range(512)]
 map_elements = {"plataforms": plataforms}
@@ -17,8 +16,6 @@ for i in plataforms2:  # X            Y
     plataforms.append([plataforms2[lan], 401])
     lan += 1
 win = pygame.display.set_mode((1024, 600))
-pygame.display.set_caption("Jogo top")
-pygame.display.toggle_fullscreen()
 
 character = {
     "steady": pygame.transform.flip(pygame.transform.scale(pygame.image.load('assets/char/char_steady.png'), (37, 46)),
@@ -188,7 +185,8 @@ def coiso2():
             character["sprints"]["current"] = next(_count)
 
 
-# Loop Principal
-
+pygame.init()
+pygame.display.set_caption("Quack!")
+pygame.display.toggle_fullscreen()
 
 main_loop()
