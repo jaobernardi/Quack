@@ -20,6 +20,14 @@ win = pygame.display.set_mode((1024, 600))
 character = {
     "steady": pygame.transform.flip(pygame.transform.scale(pygame.image.load('assets/char/char_steady.png'), (37, 46)),
                                     180, 0),
+    "flying": pygame.transform.flip(pygame.transform.scale(pygame.image.load('assets/char/char_flying.png'), (37, 46)),
+                                    180, 0),
+    "flying_leste": pygame.transform.flip(
+        pygame.transform.scale(pygame.image.load('assets/char/char_flying.png'), (37, 46)),
+        0, 0),
+    "flying_oeste": pygame.transform.flip(
+        pygame.transform.scale(pygame.image.load('assets/char/char_flying.png'), (37, 46)),
+        180, 0),
     "steady_leste": pygame.transform.flip(
         pygame.transform.scale(pygame.image.load('assets/char/char_steady.png'), (37, 46)), 0, 0),
     "steady_oeste": pygame.transform.flip(
@@ -120,6 +128,9 @@ def character_move():
             character["pos"]["x"] + _vel + character["dimensions"]["length"] < 1024)):
         character["pos"]["x"] += _vel
         _walked = True
+    if character["state"]["isJumping"] or gravity:
+        win.blit(character["flying"], (character["pos"]["x"], character["pos"]["y"]))
+        return
     if not _walked:
         win.blit(character['steady'], (character["pos"]["x"], character["pos"]["y"]))
     else:
@@ -167,8 +178,11 @@ def coiso():
         keys = pygame.key.get_pressed()
         if keys[pygame.K_s] or keys[pygame.K_LEFT]:
             character["steady"] = character["steady_leste"]
+            character["flying"] = character["flying_leste"]
         elif keys[pygame.K_w] or keys[pygame.K_RIGHT]:
             character["steady"] = character["steady_oeste"]
+            character["flying"] = character["flying_oeste"]
+        #            character["steady"] = character["steady_oeste"]
         sleep(0.01)
 
 
@@ -181,6 +195,7 @@ def coiso2():
         sleep(0.05)
         if character["steady"] != character["steady_leste"]:
             character["sprints"]["current"] = pygame.transform.flip(next(_count), 180, 0)
+
         else:
             character["sprints"]["current"] = next(_count)
 
