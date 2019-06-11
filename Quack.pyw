@@ -1,12 +1,23 @@
-import itertools
-import threading
 from builtins import *
 from math import floor
 from time import sleep
-
+from json import load
+from data.object.index import object_list
+import itertools
+import threading
 import pygame
-
-plataforms = [i for i in range(512)]
+plataforms = []
+with open('dump.json', 'r') as f:
+    contents = load(f)
+    for object in contents['objects']:
+        if object_list[object['type']].plataform:
+            x = object['location'][0]
+            y = object['location'][1]
+            for loc in object_list[object['type']].plataforms:
+                x_2 = loc[0]
+                y_2 = loc[1]
+                plataforms.append([x+x_2, y+y_2])
+'''plataforms = [i for i in range(512)]
 plataforms2 = [i + 512 for i in range(512)]
 map_elements = {"plataforms": plataforms}
 for i in plataforms:  # X            Y
@@ -14,7 +25,7 @@ for i in plataforms:  # X            Y
 lan = 0
 for i in plataforms2:  # X            Y
     plataforms.append([plataforms2[lan], 401])
-    lan += 1
+    lan += 1'''
 win = pygame.display.set_mode((1024, 600))
 
 character = {
@@ -157,6 +168,7 @@ def main_loop():
         if pygame.event.get(pygame.QUIT):
             global_status["running"] = False
         win.fill((0, 0, 0))
+        for I in plataforms: pygame.draw.rect(win, (255, 0, 0), (I[0], I[1], 1, 1))
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             global_status["paused"] = not (global_status["paused"])
             if not global_status["paused"]:

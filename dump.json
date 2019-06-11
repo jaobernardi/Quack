@@ -1,0 +1,116 @@
+{
+    "objects": [
+        {
+            "location": [
+                0,
+                576
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                64,
+                576
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                128,
+                576
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                192,
+                576
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                256,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                320,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                384,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                448,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                512,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                576,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                640,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                704,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                768,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                832,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                896,
+                512
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                960,
+                512
+            ],
+            "type": "grass_block"
+        }
+    ]
+}

@@ -2,12 +2,7 @@
   "objects": [
     {
       "type": "grass_block",
-      "locations": [
-        [
-          0,
-          0
-        ]
-      ]
+      "location": []
     }
   ]
 }

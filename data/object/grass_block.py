@@ -1,9 +1,10 @@
+from itertools import combinations
 class grass_block:
     def __init__(self):
         self.height = 64
         self.length = 64
         self.plataform = True
-        self.plataforms = [[i, 0] for i in range]
+        self.plataforms = list(combinations(range(64), 2))
         self.assets = 'assets/objects/grass_block.png'
 
     def __str__(self):

@@ -1,4 +1,5 @@
 import itertools
+import json
 import threading
 
 import pygame
@@ -66,22 +67,25 @@ def draw_limits():
     for _ in range(20):
         pow += 32
         pygame.draw.line(window, (color, color, color), (0, pow), (1024, pow))
-    pygame.display.update()
-
 
 saved_blocks = []
 
-
+def to_json():
+    top = {"objects": []}
+    for block in saved_blocks:
+        top['objects'].append({"type": block[3], "location": [block[1],block[2]]})
+    with open('dump.json', 'w') as f:
+        f.write(json.dumps(top, sort_keys=True, indent=4))
+        f.close()
 def draw_blocks():
     if len(saved_blocks) == 0: return
     for block in saved_blocks:
         window.blit(block[0], (block[1], block[2]))
-    pygame.display.update()
-
+    to_json()
 
 def main_loop():
     img = pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'), (64, 64))
-
+    type="grass_block"
     while global_status['running']:
         clock.tick(tick)
         # print('tick')
@@ -92,13 +96,13 @@ def main_loop():
         window.blit(img, (x[pygame.mouse.get_pos()[0]], y[pygame.mouse.get_pos()[1]]))
         pygame.display.update()
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_1]: img = pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'), (64, 64))
-        if keys[pygame.K_2]: img = pygame.transform.scale(pygame.image.load('assets/object/flag_lgbt.png'), (512, 512))
-        if keys[pygame.K_3]: img = pygame.transform.scale(pygame.image.load('assets/object/foliage_1.png'), (81, 81))
-        if keys[pygame.K_4]: img = pygame.transform.scale(pygame.image.load('assets/object/foliage_2.png'), (88, 88))
+        if keys[pygame.K_1]: img,type = pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'), (64, 64)), "grass_block"
+        if keys[pygame.K_2]: img,type = pygame.transform.scale(pygame.image.load('assets/object/flag_lgbt.png'), (512, 512)), "flag"
+        if keys[pygame.K_3]: img,type = pygame.transform.scale(pygame.image.load('assets/object/foliage_1.png'), (81, 81)), "foliage_1"
+        if keys[pygame.K_4]: img,type = pygame.transform.scale(pygame.image.load('assets/object/foliage_2.png'), (88, 88)), "foliage_2"
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                saved_blocks.append([img, x[pygame.mouse.get_pos()[0]], y[pygame.mouse.get_pos()[1]]])
+                saved_blocks.append([img, x[pygame.mouse.get_pos()[0]], y[pygame.mouse.get_pos()[1]], type])
             # check if the event is the X button
 
             if event.type == pygame.QUIT:
