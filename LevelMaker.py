@@ -45,12 +45,7 @@ def ticko():
         globals()['tick'] = int(input("tick_rate> "))
 
 
-colors = [i for i in range(80) if i % 2 == 0]
-id = 80
-for i in range(80):
-    id -= 1
-    if id % 2 == 0:
-        colors.append(id)
+colors = [i for i in range(9) if i % 2 == 0]
 colors = itertools.cycle(colors)
 
 

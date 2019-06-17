@@ -12,7 +12,7 @@ with open('dump.json', 'r') as f:
     for object in contents['objects']:
         if object_list[object['type']].plataform:
             x = object['location'][0]
-            y = object['location'][1]
+            y = object['location'][1]-64
             for loc in object_list[object['type']].plataforms:
                 x_2 = loc[0]
                 y_2 = loc[1]
@@ -151,7 +151,7 @@ def character_move():
 # noinspection PyMethodParameters
 class menus:
     def pause():
-        win.blit(pygame.transform.scale(pygame.image.load('assets/ui/pause.png'), (128, 128)), (3, 3))
+        win.blit(pygame.transform.scale(pygame.image.load('assets/ui/pause.png'), (64, 64)), (3, 3))
     def unpause():
         pygame.draw.rect(win, (0, 0, 0), (0, 0, 60, 60))
         pygame.display.update()
