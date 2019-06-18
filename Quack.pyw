@@ -1,12 +1,23 @@
-import itertools
-import threading
 from builtins import *
 from math import floor
 from time import sleep
-
+from json import load
+from data.object.index import object_list
+import itertools
+import threading
 import pygame
-
-plataforms = [i for i in range(512)]
+plataforms = []
+with open('dump.json', 'r') as f:
+    contents = load(f)
+    for object in contents['objects']:
+        if object_list[object['type']].plataform:
+            x = object['location'][0]
+            y = object['location'][1]-64
+            for loc in object_list[object['type']].plataforms:
+                x_2 = loc[0]
+                y_2 = loc[1]
+                plataforms.append([x+x_2, y+y_2])
+'''plataforms = [i for i in range(512)]
 plataforms2 = [i + 512 for i in range(512)]
 map_elements = {"plataforms": plataforms}
 for i in plataforms:  # X            Y
@@ -14,8 +25,7 @@ for i in plataforms:  # X            Y
 lan = 0
 for i in plataforms2:  # X            Y
     plataforms.append([plataforms2[lan], 401])
-    lan += 1
-win = pygame.display.set_mode((1024, 600))
+    lan += 1'''
 
 character = {
     "steady": pygame.transform.flip(pygame.transform.scale(pygame.image.load('assets/char/char_steady.png'), (37, 46)),
@@ -67,7 +77,7 @@ def gravity_check(dist=None):
         if [character["pos"]["x"] + floor(character["dimensions"]["length"] / 2), y_base] in plataforms:
             distance = [i for i in plataforms if
                         i == [character["pos"]["x"] + floor(character["dimensions"]["length"] / 2), y_base]][0][1] - (
-                                   character["pos"]["y"] + character["dimensions"]["height"])
+                               character["pos"]["y"] + character["dimensions"]["height"])
             if (distance > 0 and distance < 1):
                 distance = 1
             if dist:
@@ -102,7 +112,6 @@ def character_move():
             character["pos"]["y"] += dist
         else:
             character["pos"]["y"] += (_vel ** 2) * 0.5
-
     elif character["state"]["isJumping"]:
         threading.Thread(target=character_jump).start()
 
@@ -142,7 +151,7 @@ def character_move():
 # noinspection PyMethodParameters
 class menus:
     def pause():
-        win.blit(pygame.transform.scale(pygame.image.load('assets/ui/pause.png'), (128, 128)), (3, 3))
+        win.blit(pygame.transform.scale(pygame.image.load('assets/ui/pause.png'), (64, 64)), (3, 3))
     def unpause():
         pygame.draw.rect(win, (0, 0, 0), (0, 0, 60, 60))
         pygame.display.update()
@@ -157,6 +166,8 @@ def main_loop():
         if pygame.event.get(pygame.QUIT):
             global_status["running"] = False
         win.fill((0, 0, 0))
+        for I in plataforms:
+            pygame.draw.rect(win, (255, 0, 0), (I[0], I[1], 1, 1))
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             global_status["paused"] = not (global_status["paused"])
             if not global_status["paused"]:
@@ -192,13 +203,12 @@ def coiso2():
         sleep(0.05)
         if character["steady"] != character["steady_leste"]:
             character["sprints"]["current"] = pygame.transform.flip(next(_count), 180, 0)
-
         else:
             character["sprints"]["current"] = next(_count)
 
 
 pygame.init()
 pygame.display.set_caption("Quack!")
-pygame.display.toggle_fullscreen()
-
+win = pygame.display.set_mode((1024, 640))
 main_loop()
+
