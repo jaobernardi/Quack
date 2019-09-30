@@ -44,13 +44,6 @@
         },
         {
             "location": [
-                416,
-                576
-            ],
-            "type": "grass_block"
-        },
-        {
-            "location": [
                 384,
                 576
             ],
@@ -58,63 +51,63 @@
         },
         {
             "location": [
-                480,
+                448,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                544,
+                512,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                608,
+                576,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                672,
+                640,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                736,
+                704,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                800,
+                768,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                864,
+                832,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                928,
+                896,
                 576
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                992,
+                960,
                 576
             ],
             "type": "grass_block"
