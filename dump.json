@@ -2,113 +2,512 @@
     "objects": [
         {
             "location": [
-                0,
-                576
-            ],
-            "type": "grass_block"
-        },
-        {
-            "location": [
-                64,
-                576
-            ],
-            "type": "grass_block"
-        },
-        {
-            "location": [
-                128,
-                576
-            ],
-            "type": "grass_block"
-        },
-        {
-            "location": [
                 192,
-                576
+                96
             ],
             "type": "grass_block"
         },
         {
             "location": [
                 256,
-                576
+                192
             ],
             "type": "grass_block"
         },
         {
             "location": [
                 320,
-                576
+                256
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                480,
+                320
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                608,
+                160
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                544,
+                96
             ],
             "type": "grass_block"
         },
         {
             "location": [
                 384,
-                576
+                160
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                448,
-                576
+                352,
+                256
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                512,
-                576
+                320,
+                384
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                576,
-                576
+                224,
+                448
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                96,
+                352
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                64,
+                256
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                128,
+                128
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                192,
+                96
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                288,
+                128
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                224,
+                256
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                192,
+                288
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                384,
+                384
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                544,
+                320
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                544,
+                192
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                320,
+                128
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                320,
+                256
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                288,
+                352
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                160,
+                256
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                224,
+                128
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                352,
+                224
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                256,
+                320
+            ],
+            "type": "grass_block"
+        },
+        {
+            "location": [
+                64,
+                288
             ],
             "type": "grass_block"
         },
         {
             "location": [
                 640,
-                576
+                128
             ],
-            "type": "grass_block"
+            "type": "flag"
+        },
+        {
+            "location": [
+                384,
+                128
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                256,
+                512
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                32,
+                416
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                128,
+                256
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                224,
+                160
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                480,
+                64
+            ],
+            "type": "flag"
         },
         {
             "location": [
                 704,
-                576
+                160
+            ],
+            "type": "flag"
+        },
+        {
+            "location": [
+                416,
+                224
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                128,
+                160
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                0,
+                128
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                128,
+                256
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                320,
+                256
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                416,
+                224
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                352,
+                320
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                256,
+                320
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                320,
+                384
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                416,
+                352
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                448,
+                320
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                480,
+                256
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                512,
+                160
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                576,
+                160
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                608,
+                224
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                384,
+                256
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                288,
+                192
+            ],
+            "type": "foliage_1"
+        },
+        {
+            "location": [
+                256,
+                160
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                288,
+                160
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                352,
+                128
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                224,
+                128
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                160,
+                128
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                160,
+                224
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                224,
+                256
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                352,
+                160
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                192,
+                96
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                224,
+                192
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                256,
+                192
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                224,
+                288
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                192,
+                320
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                64,
+                192
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                192,
+                160
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                192,
+                160
+            ],
+            "type": "foliage_2"
+        },
+        {
+            "location": [
+                160,
+                192
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                768,
-                576
+                192,
+                224
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                832,
-                576
+                160,
+                224
             ],
             "type": "grass_block"
         },
         {
             "location": [
-                896,
-                576
-            ],
-            "type": "grass_block"
-        },
-        {
-            "location": [
-                960,
-                576
+                64,
+                224
             ],
             "type": "grass_block"
         }
