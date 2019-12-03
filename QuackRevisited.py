@@ -56,6 +56,7 @@ global_status = {
 		"grass_block": pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'), (64, 64)),
 		"grass_block2": pygame.transform.scale(pygame.image.load('assets/object/grass_block2.png'), (64, 64)),
 		"dirt_block": pygame.transform.scale(pygame.image.load('assets/object/dirt_block.png'), (64, 64)),
+		"tree": pygame.transform.scale(pygame.image.load('assets/object/tree.png'), (128, 256)),
 		"foliage": pygame.transform.scale(pygame.image.load('assets/object/foliage_1.png'), (128, 128))
 	},
 	"settings": {
@@ -136,13 +137,16 @@ def DrawScene():
 	for layer in level:
 		x = offset
 		for tile in layer:
-			if not tile in ["0", "4", "2", "3"]:
+			if not tile in ["0", "4", "2", "3", "5"]:
 				window.blit(global_status["assets"][Levels.get_block(tile)], (x, y+48))
 				global_status["physics"]["tiles"].append(pygame.Rect(x,y+48,64,64))
-			if tile in ["2", "3"]:
+			elif tile in ["2", "3"]:
 				window.blit(global_status["assets"][Levels.get_block(tile)], (x, y+48))
 				global_status["physics"]["tiles"].append(pygame.Rect(x,y+56,64,58))
-			if tile == "4":
+			elif tile == "5":
+				global_status["physics"]["tiles"].append(pygame.Rect(x,y-128,128,256))
+				later_render.append({"Assets": global_status["assets"][Levels.get_block(tile)], "pos": (x, y-128)})
+			elif tile == "4":
 				global_status["physics"]["tiles"].append(pygame.Rect(x,y,128,128))
 				later_render.append({"Assets": global_status["assets"][Levels.get_block(tile)], "pos": (x, y)})
 			x += 64
@@ -163,7 +167,7 @@ def CollisionTest(objecto, tobetested):
 def CharPhysics():
 	y = global_status["player"]["pos"][1]+global_status["player"]["fall_speed"]
 	rd = floor((global_status["player"]["fall_speed"] ** 2) * 0.5)
-	hrp = pygame.Rect(global_status["player"]["pos"][0],y,37, 46)
+	hrp = pygame.Rect(global_status["player"]["pos"][0]+10,y,7, 46)
 	if global_status["settings"]["draw_bound"]: pygame.draw.rect(window, (0,255,0), hrp, 1)
 	collisions = CollisionTest(hrp, global_status["physics"]["tiles"])
 	collisions2 = CollisionTest(global_status["player"]["tile"], global_status["physics"]["tiles"])
