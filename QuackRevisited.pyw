@@ -44,6 +44,7 @@ global_status = { # Status do Jogo em si
 		'is_playing': False,
 		},
 	'level': {
+			'background_offset': 0,
 			'levels': Levels.get_all(),
 			'actual': None
 		},
@@ -77,10 +78,12 @@ def KeyWork():
 			global_status["player"]["pos"][1] += GetSystemMetrics(1)-global_status["settings"]["display"]["size"][1]
 			window = pygame.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pygame.FULLSCREEN)
 			global_status["settings"]["display"]["size"] = [GetSystemMetrics(0), GetSystemMetrics(1)]
+			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 		else:
 			global_status["player"]["pos"][1] += 640-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [1024, 640]
 			window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
+			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 	if keys[pygame.K_x]:
 		global_status["settings"]["draw_bound"] = True
 	else:
@@ -92,6 +95,7 @@ def KeyWork():
 	if keys[pygame.K_LEFT] or keys[pygame.K_a]:#global_status["player"]["offset"] += global_status["player"]["speed"]
 		if global_status["player"]["pos"][0] < 100:
 			global_status["player"]["offset"] += global_status["player"]["speed"]
+			global_status["level"]["background_offset"] += global_status["player"]["speed"]
 		else:
 			global_status["player"]["pos"][0] -= global_status["player"]["speed"]
 		global_status["player"]["orientation"] = 1
@@ -100,6 +104,7 @@ def KeyWork():
 		if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
 
 			global_status["player"]["offset"] -= global_status["player"]["speed"]
+			global_status["level"]["background_offset"] -= global_status["player"]["speed"]
 		else:
 			global_status["player"]["pos"][0] += global_status["player"]["speed"]
 		global_status["player"]["orientation"] = 0
@@ -128,9 +133,23 @@ def DisplayRender():
 		MenuDraw()
 # Função para renderização do Background do nivél
 def BackgroundDraw():
-	offset = global_status['player']['offset']
-	# Draw do back 1
-	window.blit(global_status['assets']['back'], (0,0))
+# sorry jão do futuro. nem eu sei como que eu cheguei nesse código...
+	offset = global_status['level']['background_offset']
+	screen_size = global_status['settings']['display']['size'][0]
+	y = 0
+	if offset < 0:
+		y += offset	
+		if y < 0:
+			window.blit(global_status['assets']['back'], (y+screen_size,0))
+		if y*-1 > screen_size:
+			global_status['level']['background_offset'] = 0 
+	if offset > 0:
+		y += offset	
+		window.blit(global_status['assets']['back'], ((screen_size-offset)*-1,0))
+		if y >= screen_size:
+			global_status['level']['background_offset'] = 0
+	window.blit(global_status['assets']['back'], (y,0))
+
 # Função de Renderização e Interpretação de Nivél
 def DrawScene():
 	# Atribuir o nivél (á ser reformulado.)
@@ -300,6 +319,7 @@ def MainLoop():
 			global_status["player"]["pos"][1] += resize_event[0].h-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [resize_event[0].w, resize_event[0].h]
 			window = pygame.display.set_mode((resize_event[0].w, resize_event[0].h), pygame.RESIZABLE)
+			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 			pass
 		# Chama as funções principais
 		KeyWork()
