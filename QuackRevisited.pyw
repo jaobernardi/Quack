@@ -2,10 +2,11 @@
 import pygame
 import itertools
 import threading
+from os import listdir
 from math import floor
 from random import randint
 from time import sleep as wait
-from levelmanager import Levels
+from assets.levels.levels import Levels
 from win32api import GetSystemMetrics
 
 # Variavél de Status do Jogo
@@ -41,10 +42,14 @@ global_status = { # Status do Jogo em si
 		'is_paused': False,
 		'menu_state': 0,
 		'is_playing': False,
-		'id': Levels.get_all()[0]['Map'](), # Level de debug (mudança em breve)
+		},
+	'level': {
+			'levels': Levels.get_all(),
+			'actual': None
 		},
 	'physics': { # Objetos do Mapa
-		'tiles': []},
+		'stiles': [],
+		'sstiles': []},
 	'assets': { # Texturas
 		'grass_block': pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'
 				), (64, 64)),
@@ -69,9 +74,11 @@ def KeyWork():
 	if keys[pygame.K_F11]:
 		global_status["settings"]["display"]["fullscreen"] = not global_status["settings"]["display"]["fullscreen"]
 		if global_status["settings"]["display"]["fullscreen"]:
+			global_status["player"]["pos"][1] += GetSystemMetrics(1)-global_status["settings"]["display"]["size"][1]
 			window = pygame.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pygame.FULLSCREEN)
 			global_status["settings"]["display"]["size"] = [GetSystemMetrics(0), GetSystemMetrics(1)]
 		else:
+			global_status["player"]["pos"][1] += 640-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [1024, 640]
 			window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
 	if keys[pygame.K_x]:
@@ -107,6 +114,8 @@ def KeyWork():
 def DisplayRender():
 	# Limpa a tela
 	window.fill((0, 0, 0))
+	# Renderiza o Background
+	BackgroundDraw()
 	# Recebe objetos de renderização tardia e renderiza o cenário.
 	later_render = DrawScene()
 	# Renderiza o Jogador
@@ -117,22 +126,25 @@ def DisplayRender():
 	# Menus
 	if global_status['gamestate']['is_paused']:
 		MenuDraw()
-
+# Função para renderização do Background do nivél
+def BackgroundDraw():
+	offset = global_status['player']['offset']
+	# Draw do back 1
+	window.blit(pygame.transform.scale(global_status['assets']['back_3'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
+	window.blit(pygame.transform.scale(global_status['assets']['back_2'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
+	window.blit(pygame.transform.scale(global_status['assets']['back_1'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
 # Função de Renderização e Interpretação de Nivél
-
 def DrawScene():
 	# Atribuir o nivél (á ser reformulado.)
-	level = global_status['gamestate']['id']
+	level = global_status['level']['actual']
 	# Pegar o canto inferior esquerdo
 	y = global_status['settings']['display']['size'][1] - 110
 	# Pegar o Offset da câmera
 	offset = global_status['player']['offset']
-	# Preencher o Céu
-	window.fill((96, 178, 200))
 	# Variavél para objetos de renderização tardia
 	later_render = []
 	# Limpar objetos do ultimo Frame
-	global_status['physics']['tiles'] = []
+	global_status['physics']['stiles'] = []
 	# Level é igual à linha horizontal formada por blocos.
 	for layer in level:
 		x = offset
@@ -142,21 +154,19 @@ def DrawScene():
 			if not tile in ['0', '4', '2', '3', '5']:
 				window.blit(global_status['assets'
 							][Levels.get_block(tile)], (x, y + 48))
-				global_status['physics']['tiles'].append(pygame.Rect(x,
+				global_status['physics']['stiles'].append(pygame.Rect(x,
 						y + 48, 64, 64))
 			elif tile in ['2', '3']:
 				window.blit(global_status['assets'
 							][Levels.get_block(tile)], (x, y + 48))
-				global_status['physics']['tiles'].append(pygame.Rect(x,
+				global_status['physics']['stiles'].append(pygame.Rect(x,
 						y + 56, 64, 58))
 			elif tile == '5':
-				global_status['physics']['tiles'].append(pygame.Rect(x,
+				global_status['physics']['stiles'].append(pygame.Rect(x,
 						y - 128, 128, 256))
-				later_render.append({'Assets': global_status['assets'
-									][Levels.get_block(tile)],
-									'pos': (x, y - 128)})
+				window.blit(global_status['assets'][Levels.get_block(tile)], (x, y - 128))
 			elif tile == '4':
-				global_status['physics']['tiles'].append(pygame.Rect(x,
+				global_status['physics']['sstiles'].append(pygame.Rect(x,
 						y, 128, 128))
 				later_render.append({'Assets': global_status['assets'
 									][Levels.get_block(tile)],
@@ -165,7 +175,7 @@ def DrawScene():
 		y -= 64
 	# Debug: Modo de visualização de limites dos blocos.
 	if global_status['settings']['draw_bound']:
-		for rectum in global_status['physics']['tiles']:
+		for rectum in global_status['physics']['stiles']:
 			pygame.draw.rect(window, (255, 0, 0), rectum, 1)
 	return later_render
 
@@ -188,8 +198,8 @@ def CharPhysics():
 	if global_status['settings']['draw_bound']:
 		pygame.draw.rect(window, (0, 255, 0), preview_bound, 1)
 	# Testes de colisão da Previsão entre o mundo e do Jogador atual entre o mundo.
-	c_pb = CollisionTest(preview_bound, global_status['physics']['tiles'])
-	c_np = CollisionTest(global_status['player']['tile'],global_status['physics']['tiles'])
+	c_pb = CollisionTest(preview_bound, global_status['physics']['stiles'])
+	c_np = CollisionTest(global_status['player']['tile'],global_status['physics']['stiles'])
 	# Decisão sobre se é possivél uma queda.
 	if c_pb and not c_np or c_pb and c_np:
 		# Cancelamento e nulificação da queda
@@ -269,14 +279,27 @@ def Quit():
 			print('Force Quit. (Code 0)')
 			exit(-1)
 
+
+def LevelLoad(name):
+	for level in global_status['level']['levels']:
+		if level["Name"] == name:
+			global_status['level']['actual'] = level["Map"]()
+			files = listdir(level['Assets'])
+			for file in files:
+				if file.endswith(".png") or file.endswith(".jpg"):
+					global_status["assets"][file.split(".")[0]] = pygame.image.load(f"{level['Assets']}/{file}")
 # Função do Loop Principal
 
 def MainLoop():
 	clock = pygame.time.Clock()
+	print("[@] Loading Testing Level")
+	LevelLoad("Testing Level")
+	#global_status['level']['actual'] = global_status['level']['levels'](0)
 	while global_status['process']['run']:
 		clock.tick(65)
 		resize_event = pygame.event.get(pygame.VIDEORESIZE)
 		if resize_event:
+			global_status["player"]["pos"][1] += resize_event[0].h-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [resize_event[0].w, resize_event[0].h]
 			window = pygame.display.set_mode((resize_event[0].w, resize_event[0].h), pygame.RESIZABLE)
 			pass
@@ -286,9 +309,9 @@ def MainLoop():
 		CharPhysics()
 		# Atualiza o Frame
 		pygame.display.update()
-
-
 pygame.init()
+icon = pygame.transform.scale(pygame.image.load('icon.png'), (32, 32))
+pygame.display.set_icon(icon)
 window = pygame.display.set_mode((1024, 640), pygame.RESIZABLE)
 pygame.display.set_caption('Quack!')
 global_status['gamestate']['is_playing'] = True
