@@ -130,9 +130,7 @@ def DisplayRender():
 def BackgroundDraw():
 	offset = global_status['player']['offset']
 	# Draw do back 1
-	window.blit(pygame.transform.scale(global_status['assets']['back_3'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
-	window.blit(pygame.transform.scale(global_status['assets']['back_2'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
-	window.blit(pygame.transform.scale(global_status['assets']['back_1'], (global_status["settings"]["display"]['size'][0], global_status["settings"]["display"]['size'][1])),(0,0))
+	window.blit(global_status['assets']['back'], (0,0))
 # Função de Renderização e Interpretação de Nivél
 def DrawScene():
 	# Atribuir o nivél (á ser reformulado.)
@@ -287,7 +285,7 @@ def LevelLoad(name):
 			files = listdir(level['Assets'])
 			for file in files:
 				if file.endswith(".png") or file.endswith(".jpg"):
-					global_status["assets"][file.split(".")[0]] = pygame.image.load(f"{level['Assets']}/{file}")
+					global_status["assets"][file.split(".")[0]] = pygame.transform.scale(pygame.image.load(f"{level['Assets']}/{file}"), global_status['settings']['display']['size']).convert()
 # Função do Loop Principal
 
 def MainLoop():
