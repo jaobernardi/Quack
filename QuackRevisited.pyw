@@ -38,10 +38,12 @@ global_status = { # Status do Jogo em si
 					   ), (37, 46))]), 'actual': None}},
 		'orientation': 0, # Orientação do Jogador ( Leste e Oeste )
 		},
-	'menu': {'offset': 0},
+	'menu': {
+		'offset': 0,
+		'state': 0
+		},
 	'gamestate': { # Estado da gameplay
 		'is_paused': False,
-		'menu_state': 0,
 		'is_playing': False,
 		},
 	'level': {
@@ -77,17 +79,7 @@ global_status = { # Status do Jogo em si
 def KeyWork():
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_F11]:
-		global_status["settings"]["display"]["fullscreen"] = not global_status["settings"]["display"]["fullscreen"]
-		if global_status["settings"]["display"]["fullscreen"]:
-			global_status["player"]["pos"][1] += GetSystemMetrics(1)-global_status["settings"]["display"]["size"][1]
-			window = pygame.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pygame.FULLSCREEN)
-			global_status["settings"]["display"]["size"] = [GetSystemMetrics(0), GetSystemMetrics(1)]
-		else:
-			global_status["player"]["pos"][1] += 640-global_status["settings"]["display"]["size"][1]
-			global_status["settings"]["display"]["size"] = [1024, 640]
-			window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
-		if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
-		global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
+		ToggleFullscreen()
 	if global_status["gamestate"]["is_playing"]:
 		if keys[pygame.K_x]:
 			global_status["settings"]["draw_bound"] = True
@@ -139,12 +131,26 @@ def DisplayRender():
 		MenuDraw()
 		
 # Função dos Menus (em breve)
+def ToggleFullscreen():
+	global_status["settings"]["display"]["fullscreen"] = not global_status["settings"]["display"]["fullscreen"]
+	if global_status["settings"]["display"]["fullscreen"]:
+		global_status["player"]["pos"][1] += GetSystemMetrics(1)-global_status["settings"]["display"]["size"][1]
+		window = pygame.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pygame.FULLSCREEN)
+		global_status["settings"]["display"]["size"] = [GetSystemMetrics(0), GetSystemMetrics(1)]
+	else:
+		global_status["player"]["pos"][1] += 640-global_status["settings"]["display"]["size"][1]
+		global_status["settings"]["display"]["size"] = [1024, 640]
+		window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
+	if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
+	global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
+
 def MenuDraw():
 	# Background
 	offset = global_status['menu']['offset']
 	screen_size = global_status['settings']['display']['size'][0]
 	a = pygame.mouse.get_pos()
-	mouse_rect = pygame.Rect(a[0], a[1], 0.5, 0.5)
+	mouse_rect = pygame.Rect(a[0]-5, a[1]-5, 10, 10)
+
 	y = 0
 	if offset < 0:
 		y += offset
@@ -158,34 +164,54 @@ def MenuDraw():
 	# Buttons
 	largeText = pygame.font.Font(global_status['assets']['font'],115)
 	buttonText = pygame.font.Font(global_status['assets']['font2'],35)
+	mediumText = pygame.font.Font(global_status['assets']['font2'],35)
+	mediumText.set_bold(True)
 	buttons = []
-	
-	title = largeText.render('Quack', True, (250, 250, 65))
-	text_rect = title.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*0.5))
-	
-	button = buttonText.render('Play', False, (255, 255, 255))
-	b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*1.75))
-	buttons.append([button, b_rect, 0])
-	button = buttonText.render('Settings', False, (255, 255, 255))
-	b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.25))
-	buttons.append([button, b_rect, 1])
+	if global_status['menu']['state'] == 0:
+		
+		title = largeText.render('Quack', True, (255, 222, 65))
+		text_rect = title.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*0.5))
+		
+		button = buttonText.render('Play', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*1.75))
+		buttons.append([button, b_rect, 0])
+		button = buttonText.render('Settings', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.25))
+		buttons.append([button, b_rect, 1])
+		window.blit(title, text_rect)
+	else:
+		button = mediumText.render('Settings', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4))
+		buttons.append([button, b_rect, 1])
+		button = buttonText.render('Fullscreen', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/4*1.5, global_status['settings']['display']['size'][1]/4*1.25))
+		buttons.append([button, b_rect, 1])
+		if global_status["settings"]["display"]["fullscreen"]:
+			button = buttonText.render('[On]', False, (255, 255, 255))
+		else:
+			button = buttonText.render('[Off]', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/4*2.5, global_status['settings']['display']['size'][1]/4*1.25))
+		buttons.append([button, b_rect, 2])
+		button = buttonText.render('Back', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.5))
+		buttons.append([button, b_rect, 3])
 	# Draw Buttons
 	for button in buttons:
 		window.blit(button[0], button[1])
 		if button[1].colliderect(mouse_rect): 
 			ev = pygame.event.get()
 			for event in ev:
-				if event.type == pygame.MOUSEBUTTONUP:
+				if event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
 					if button[2] == 0:
 						LevelLoad("Testing Level")
 						global_status['gamestate']['is_playing'] = True
-			pygame.draw.rect(window, (0, 255, 0), button[1], 1)
-		else:
-			pygame.draw.rect(window, (255, 0, 0), button[1], 1)
-	window.blit(title, text_rect)
-	pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
-
-		
+					elif button[2] == 1:
+						global_status['menu']['state'] = 1
+					elif button[2] == 2:
+						ToggleFullscreen()
+					elif button[2] == 3:
+						global_status['menu']['state'] = 0
+	#pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
 	#print(offset, y)
 # Função para renderização do Background do nivél
 def BackgroundDraw():
@@ -366,7 +392,7 @@ def MainLoop():
 	#print("[@] Loading Testing Level")
 	#LevelLoad("Testing Level")
 	while global_status['process']['run']:
-		clock.tick(65)
+		clock.tick(70)
 		resize_event = pygame.event.get(pygame.VIDEORESIZE)
 		if resize_event:
 			global_status["player"]["pos"][1] += resize_event[0].h-global_status["settings"]["display"]["size"][1]
