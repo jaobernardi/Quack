@@ -38,6 +38,7 @@ global_status = { # Status do Jogo em si
 					   ), (37, 46))]), 'actual': None}},
 		'orientation': 0, # Orientação do Jogador ( Leste e Oeste )
 		},
+	'menu': {'offset': 0},
 	'gamestate': { # Estado da gameplay
 		'is_paused': False,
 		'menu_state': 0,
@@ -52,6 +53,9 @@ global_status = { # Status do Jogo em si
 		'stiles': [],
 		'sstiles': []},
 	'assets': { # Texturas
+		'mmback': pygame.image.load('assets/ui/mmback.png'),
+		'font': 'assets/fonts/VCR_OSD_MONO.ttf',
+		'font2': 'assets/fonts/Coder\'s Crux.ttf',
 		'grass_block': pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'
 				), (64, 64)),
 		'grass_block2': pygame.transform.scale(pygame.image.load('assets/object/grass_block2.png'
@@ -78,40 +82,41 @@ def KeyWork():
 			global_status["player"]["pos"][1] += GetSystemMetrics(1)-global_status["settings"]["display"]["size"][1]
 			window = pygame.display.set_mode((GetSystemMetrics(0), GetSystemMetrics(1)), pygame.FULLSCREEN)
 			global_status["settings"]["display"]["size"] = [GetSystemMetrics(0), GetSystemMetrics(1)]
-			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 		else:
 			global_status["player"]["pos"][1] += 640-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [1024, 640]
 			window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
-			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
-	if keys[pygame.K_x]:
-		global_status["settings"]["draw_bound"] = True
-	else:
-		global_status["settings"]["draw_bound"] = False
-	if global_status["player"]["walking"] and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
-		global_status["player"]["walking"] = False
-	if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
-		global_status["player"]["max_speed"] = global_status["player"]["max_sprintspeed"]
-	if keys[pygame.K_LEFT] or keys[pygame.K_a]:#global_status["player"]["offset"] += global_status["player"]["speed"]
-		if global_status["player"]["pos"][0] < 100:
-			global_status["player"]["offset"] += global_status["player"]["speed"]
-			global_status["level"]["background_offset"] += global_status["player"]["speed"]
+		if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
+		global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
+	if global_status["gamestate"]["is_playing"]:
+		if keys[pygame.K_x]:
+			global_status["settings"]["draw_bound"] = True
 		else:
-			global_status["player"]["pos"][0] -= global_status["player"]["speed"]
-		global_status["player"]["orientation"] = 1
-		global_status["player"]["walking"] = True
-	if keys[pygame.K_RIGHT] or keys[pygame.K_d]:#global_status["player"]["offset"] -= global_status["player"]["speed"]
-		if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
+			global_status["settings"]["draw_bound"] = False
+		if global_status["player"]["walking"] and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+			global_status["player"]["walking"] = False
+		if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+			global_status["player"]["max_speed"] = global_status["player"]["max_sprintspeed"]
+		if keys[pygame.K_LEFT] or keys[pygame.K_a]:#global_status["player"]["offset"] += global_status["player"]["speed"]
+			if global_status["player"]["pos"][0] < 100:
+				global_status["player"]["offset"] += global_status["player"]["speed"]
+				global_status["level"]["background_offset"] += global_status["player"]["speed"]
+			else:
+				global_status["player"]["pos"][0] -= global_status["player"]["speed"]
+			global_status["player"]["orientation"] = 1
+			global_status["player"]["walking"] = True
+		if keys[pygame.K_RIGHT] or keys[pygame.K_d]:#global_status["player"]["offset"] -= global_status["player"]["speed"]
+			if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
 
-			global_status["player"]["offset"] -= global_status["player"]["speed"]
-			global_status["level"]["background_offset"] -= global_status["player"]["speed"]
-		else:
-			global_status["player"]["pos"][0] += global_status["player"]["speed"]
-		global_status["player"]["orientation"] = 0
-		global_status["player"]["walking"] = True
+				global_status["player"]["offset"] -= global_status["player"]["speed"]
+				global_status["level"]["background_offset"] -= global_status["player"]["speed"]
+			else:
+				global_status["player"]["pos"][0] += global_status["player"]["speed"]
+			global_status["player"]["orientation"] = 0
+			global_status["player"]["walking"] = True
 
-	if global_status["player"]["max_speed"] != global_status["player"]["max_normalspeed"] and not (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-		global_status["player"]["max_speed"] = global_status["player"]["max_normalspeed"]
+		if global_status["player"]["max_speed"] != global_status["player"]["max_normalspeed"] and not (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+			global_status["player"]["max_speed"] = global_status["player"]["max_normalspeed"]
 
 
 # Função da Renderização do Jogo
@@ -119,18 +124,69 @@ def KeyWork():
 def DisplayRender():
 	# Limpa a tela
 	window.fill((0, 0, 0))
-	# Renderiza o Background
-	BackgroundDraw()
-	# Recebe objetos de renderização tardia e renderiza o cenário.
-	later_render = DrawScene()
-	# Renderiza o Jogador
-	CharacterDraw()
-	# Renderização dos objetos tardios
-	for item in later_render:
-		window.blit(item['Assets'], item['pos'])
-	# Menus
-	if global_status['gamestate']['is_paused']:
+	if global_status['gamestate']['is_playing']:
+		# Renderiza o Background
+		BackgroundDraw()
+		# Recebe objetos de renderização tardia e renderiza o cenário.
+		later_render = DrawScene()
+		# Renderiza o Jogador
+		CharacterDraw()
+		# Renderização dos objetos tardios
+		for item in later_render:
+			window.blit(item['Assets'], item['pos'])
+		# Menus
+	else:
 		MenuDraw()
+		
+# Função dos Menus (em breve)
+def MenuDraw():
+	# Background
+	offset = global_status['menu']['offset']
+	screen_size = global_status['settings']['display']['size'][0]
+	a = pygame.mouse.get_pos()
+	mouse_rect = pygame.Rect(a[0], a[1], 0.5, 0.5)
+	y = 0
+	if offset < 0:
+		y += offset
+		if y < 0:
+			window.blit(global_status['assets']['mmback'], (y+screen_size,0))
+		if y*-1 > screen_size:
+			global_status['menu']['offset'] = 0 
+	window.blit(global_status['assets']['mmback'], (y,0))
+	global_status['menu']['offset'] -= 0.5
+	
+	# Buttons
+	largeText = pygame.font.Font(global_status['assets']['font'],115)
+	buttonText = pygame.font.Font(global_status['assets']['font2'],35)
+	buttons = []
+	
+	title = largeText.render('Quack', True, (250, 250, 65))
+	text_rect = title.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*0.5))
+	
+	button = buttonText.render('Play', False, (255, 255, 255))
+	b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*1.75))
+	buttons.append([button, b_rect, 0])
+	button = buttonText.render('Settings', False, (255, 255, 255))
+	b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.25))
+	buttons.append([button, b_rect, 1])
+	# Draw Buttons
+	for button in buttons:
+		window.blit(button[0], button[1])
+		if button[1].colliderect(mouse_rect): 
+			ev = pygame.event.get()
+			for event in ev:
+				if event.type == pygame.MOUSEBUTTONUP:
+					if button[2] == 0:
+						LevelLoad("Testing Level")
+						global_status['gamestate']['is_playing'] = True
+			pygame.draw.rect(window, (0, 255, 0), button[1], 1)
+		else:
+			pygame.draw.rect(window, (255, 0, 0), button[1], 1)
+	window.blit(title, text_rect)
+	pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
+
+		
+	#print(offset, y)
 # Função para renderização do Background do nivél
 def BackgroundDraw():
 # sorry jão do futuro. nem eu sei como que eu cheguei nesse código...
@@ -206,29 +262,30 @@ def CollisionTest(objecto, tobetested):
 # Função de Física ( Gravidade apenas, por ora. )
 
 def CharPhysics():
-	# Aceleração do Jogador em direção -Y.
-	y = global_status["player"]["pos"][1]+global_status["player"]["fall_speed"]
-	aceleration = floor(global_status['player']['fall_speed'] ** 2 * 0.50)
-	# Limite da previsão.
-	preview_bound = pygame.Rect(global_status['player']['pos'][0] + 10, y, 7, 46)
-	# Debug: Modo de visualização de limites dos blocos.
-	if global_status['settings']['draw_bound']:
-		pygame.draw.rect(window, (0, 255, 0), preview_bound, 1)
-	# Testes de colisão da Previsão entre o mundo e do Jogador atual entre o mundo.
-	c_pb = CollisionTest(preview_bound, global_status['physics']['stiles'])
-	c_np = CollisionTest(global_status['player']['tile'],global_status['physics']['stiles'])
-	# Decisão sobre se é possivél uma queda.
-	if c_pb and not c_np or c_pb and c_np:
-		# Cancelamento e nulificação da queda
-		aceleration = 0
-		global_status['player']['fall_speed'] = 0
-		global_status['player']['falling'] = False
-	elif global_status['player']['fall_speed'] < global_status['player']['maxfall_speed']:
-		# Aceleração da queda e efetivação da queda.
-		global_status['player']['fall_speed'] += 0.3
-		if aceleration > 1.5:
-			global_status['player']['falling'] = True
-	global_status['player']['pos'][1] += aceleration
+	if global_status["gamestate"]["is_playing"]:
+		# Aceleração do Jogador em direção -Y.
+		y = global_status["player"]["pos"][1]+global_status["player"]["fall_speed"]
+		aceleration = floor(global_status['player']['fall_speed'] ** 2 * 0.50)
+		# Limite da previsão.
+		preview_bound = pygame.Rect(global_status['player']['pos'][0] + 10, y, 7, 46)
+		# Debug: Modo de visualização de limites dos blocos.
+		if global_status['settings']['draw_bound']:
+			pygame.draw.rect(window, (0, 255, 0), preview_bound, 1)
+		# Testes de colisão da Previsão entre o mundo e do Jogador atual entre o mundo.
+		c_pb = CollisionTest(preview_bound, global_status['physics']['stiles'])
+		c_np = CollisionTest(global_status['player']['tile'],global_status['physics']['stiles'])
+		# Decisão sobre se é possivél uma queda.
+		if c_pb and not c_np or c_pb and c_np:
+			# Cancelamento e nulificação da queda
+			aceleration = 0
+			global_status['player']['fall_speed'] = 0
+			global_status['player']['falling'] = False
+		elif global_status['player']['fall_speed'] < global_status['player']['maxfall_speed']:
+			# Aceleração da queda e efetivação da queda.
+			global_status['player']['fall_speed'] += 0.3
+			if aceleration > 1.5:
+				global_status['player']['falling'] = True
+		global_status['player']['pos'][1] += aceleration
 # Função de Renderização do Jogador
 
 def CharacterDraw():
@@ -281,10 +338,7 @@ def Speed_Thread():
 			# Reseta a Velocidade para 1, em prol da manteneção dos cálculos futuros.
 			global_status['player']['speed'] = 1
 
-# Função dos Menus (em breve)
 
-def MenuDraw():
-	pass
 # Função de Saida.
 
 def Quit():
@@ -309,9 +363,8 @@ def LevelLoad(name):
 
 def MainLoop():
 	clock = pygame.time.Clock()
-	print("[@] Loading Testing Level")
-	LevelLoad("Testing Level")
-	#global_status['level']['actual'] = global_status['level']['levels'](0)
+	#print("[@] Loading Testing Level")
+	#LevelLoad("Testing Level")
 	while global_status['process']['run']:
 		clock.tick(65)
 		resize_event = pygame.event.get(pygame.VIDEORESIZE)
@@ -319,7 +372,8 @@ def MainLoop():
 			global_status["player"]["pos"][1] += resize_event[0].h-global_status["settings"]["display"]["size"][1]
 			global_status["settings"]["display"]["size"] = [resize_event[0].w, resize_event[0].h]
 			window = pygame.display.set_mode((resize_event[0].w, resize_event[0].h), pygame.RESIZABLE)
-			global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
+			if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
+			global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
 			pass
 		# Chama as funções principais
 		KeyWork()
@@ -328,13 +382,13 @@ def MainLoop():
 		# Atualiza o Frame
 		pygame.display.update()
 pygame.init()
+pygame.font.init()
 icon = pygame.transform.scale(pygame.image.load('icon.png'), (32, 32))
 pygame.display.set_icon(icon)
 window = pygame.display.set_mode((1024, 640), pygame.RESIZABLE)
 pygame.display.set_caption('Quack!')
-global_status['gamestate']['is_playing'] = True
-global_status['gamestate']['is_paused'] = not global_status['gamestate'
-		]['is_playing']
+global_status['gamestate']['is_playing'] = False
+global_status['gamestate']['is_paused'] = not global_status['gamestate']['is_playing']
 global_status['player']['speed_thread'] = \
 	threading.Thread(target=Speed_Thread, daemon=True)
 global_status['player']['sprite_lib']['moving']['thread'] = \
@@ -342,6 +396,7 @@ global_status['player']['sprite_lib']['moving']['thread'] = \
 global_status['player']['sprite_lib']['moving']['thread'].start()
 global_status['player']['speed_thread'].start()
 threading.Thread(target=Quit, daemon=True).start()
+global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
 try:
 	MainLoop()
 except KeyboardInterrupt:
