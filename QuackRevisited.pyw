@@ -39,6 +39,7 @@ global_status = { # Status do Jogo em si
 		'orientation': 0, # Orientação do Jogador ( Leste e Oeste )
 		},
 	'menu': {
+		'id': 0,
 		'offset': 0,
 		'state': 0
 		},
@@ -56,6 +57,7 @@ global_status = { # Status do Jogo em si
 		'sstiles': []},
 	'assets': { # Texturas
 		'mmback': pygame.image.load('assets/ui/mmback.png'),
+		'opaticy': pygame.image.load('assets/ui/opacity.png'),
 		'font': 'assets/fonts/VCR_OSD_MONO.ttf',
 		'font2': 'assets/fonts/Coder\'s Crux.ttf',
 		'grass_block': pygame.transform.scale(pygame.image.load('assets/object/grass_block.png'
@@ -81,34 +83,42 @@ def KeyWork():
 	if keys[pygame.K_F11]:
 		ToggleFullscreen()
 	if global_status["gamestate"]["is_playing"]:
-		if keys[pygame.K_x]:
-			global_status["settings"]["draw_bound"] = True
-		else:
-			global_status["settings"]["draw_bound"] = False
-		if global_status["player"]["walking"] and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
-			global_status["player"]["walking"] = False
-		if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
-			global_status["player"]["max_speed"] = global_status["player"]["max_sprintspeed"]
-		if keys[pygame.K_LEFT] or keys[pygame.K_a]:#global_status["player"]["offset"] += global_status["player"]["speed"]
-			if global_status["player"]["pos"][0] < 100:
-				global_status["player"]["offset"] += global_status["player"]["speed"]
-				global_status["level"]["background_offset"] += global_status["player"]["speed"]
+		if keys[pygame.K_ESCAPE]:
+			global_status["gamestate"]["is_paused"] = not global_status["gamestate"]["is_paused"]
+			global_status["menu"]["id"] = 1
+			wait(0.1)
+		if not global_status["gamestate"]["is_paused"]:
+			if keys[pygame.K_x]:
+				global_status["settings"]["draw_bound"] = True
 			else:
-				global_status["player"]["pos"][0] -= global_status["player"]["speed"]
-			global_status["player"]["orientation"] = 1
-			global_status["player"]["walking"] = True
-		if keys[pygame.K_RIGHT] or keys[pygame.K_d]:#global_status["player"]["offset"] -= global_status["player"]["speed"]
-			if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
+				global_status["settings"]["draw_bound"] = False
+			
+			if global_status["player"]["walking"] and not (keys[pygame.K_RIGHT] or keys[pygame.K_d]):
+				global_status["player"]["walking"] = False
+			if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+				global_status["player"]["max_speed"] = global_status["player"]["max_sprintspeed"]
+				
+			if keys[pygame.K_LEFT] or keys[pygame.K_s]:#global_status["player"]["offset"] += global_status["player"]["speed"]
+				if global_status["player"]["pos"][0] < 100:
+					global_status["player"]["offset"] += global_status["player"]["speed"]
+					global_status["level"]["background_offset"] += global_status["player"]["speed"]
+				else:
+					global_status["player"]["pos"][0] -= global_status["player"]["speed"]
+				global_status["player"]["orientation"] = 1
+				global_status["player"]["walking"] = True
+				
+			elif keys[pygame.K_RIGHT] or keys[pygame.K_w]:#global_status["player"]["offset"] -= global_status["player"]["speed"]
+				if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
 
-				global_status["player"]["offset"] -= global_status["player"]["speed"]
-				global_status["level"]["background_offset"] -= global_status["player"]["speed"]
-			else:
-				global_status["player"]["pos"][0] += global_status["player"]["speed"]
-			global_status["player"]["orientation"] = 0
-			global_status["player"]["walking"] = True
+					global_status["player"]["offset"] -= global_status["player"]["speed"]
+					global_status["level"]["background_offset"] -= global_status["player"]["speed"]
+				else:
+					global_status["player"]["pos"][0] += global_status["player"]["speed"]
+				global_status["player"]["orientation"] = 0
+				global_status["player"]["walking"] = True
 
-		if global_status["player"]["max_speed"] != global_status["player"]["max_normalspeed"] and not (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
-			global_status["player"]["max_speed"] = global_status["player"]["max_normalspeed"]
+			if global_status["player"]["max_speed"] != global_status["player"]["max_normalspeed"] and not (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]):
+				global_status["player"]["max_speed"] = global_status["player"]["max_normalspeed"]
 
 
 # Função da Renderização do Jogo
@@ -126,7 +136,9 @@ def DisplayRender():
 		# Renderização dos objetos tardios
 		for item in later_render:
 			window.blit(item['Assets'], item['pos'])
-		# Menus
+		if global_status['gamestate']['is_paused']:
+			MenuDraw()		
+	# Menus
 	else:
 		MenuDraw()
 		
@@ -143,74 +155,87 @@ def ToggleFullscreen():
 		window = pygame.display.set_mode((global_status["settings"]["display"]["size"][0], global_status["settings"]["display"]["size"][1]), pygame.RESIZABLE)
 	if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 	global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
-
+	global_status['assets']['opacity'] = global_status['assets']['opacity'] = pygame.transform.scale(pygame.image.load('assets/ui/opacity.png'), global_status["settings"]["display"]["size"])
+	
 def MenuDraw():
 	# Background
-	offset = global_status['menu']['offset']
-	screen_size = global_status['settings']['display']['size'][0]
-	a = pygame.mouse.get_pos()
-	mouse_rect = pygame.Rect(a[0]-5, a[1]-5, 10, 10)
-
-	y = 0
-	if offset < 0:
-		y += offset
-		if y < 0:
-			window.blit(global_status['assets']['mmback'], (y+screen_size,0))
-		if y*-1 > screen_size:
-			global_status['menu']['offset'] = 0 
-	window.blit(global_status['assets']['mmback'], (y,0))
-	global_status['menu']['offset'] -= 0.5
-	
-	# Buttons
-	largeText = pygame.font.Font(global_status['assets']['font'],115)
-	buttonText = pygame.font.Font(global_status['assets']['font2'],35)
-	mediumText = pygame.font.Font(global_status['assets']['font2'],35)
-	mediumText.set_bold(True)
-	buttons = []
-	if global_status['menu']['state'] == 0:
+	if global_status['menu']['id'] == 0:
+		offset = global_status['menu']['offset']
+		screen_size = global_status['settings']['display']['size'][0]
+		a = pygame.mouse.get_pos()
+		mouse_rect = pygame.Rect(a[0]-5, a[1]-5, 10, 10)
+		y = 0
+		if offset < 0:
+			y += offset
+			if y < 0:
+				window.blit(global_status['assets']['mmback'], (y+screen_size,0))
+			if y*-1 > screen_size:
+				global_status['menu']['offset'] = 0 
+		window.blit(global_status['assets']['mmback'], (y,0))
+		global_status['menu']['offset'] -= 0.5
 		
-		title = largeText.render('Quack', True, (255, 222, 65))
-		text_rect = title.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*0.5))
-		
-		button = buttonText.render('Play', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*1.75))
-		buttons.append([button, b_rect, 0])
-		button = buttonText.render('Settings', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.25))
-		buttons.append([button, b_rect, 1])
-		window.blit(title, text_rect)
-	else:
-		button = mediumText.render('Settings', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4))
-		buttons.append([button, b_rect, 1])
-		button = buttonText.render('Fullscreen', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/4*1.5, global_status['settings']['display']['size'][1]/4*1.25))
-		buttons.append([button, b_rect, 1])
-		if global_status["settings"]["display"]["fullscreen"]:
-			button = buttonText.render('[On]', False, (255, 255, 255))
+		# Buttons
+		largeText = pygame.font.Font(global_status['assets']['font'],115)
+		buttonText = pygame.font.Font(global_status['assets']['font2'],40)
+		smallText = pygame.font.Font(global_status['assets']['font2'],33)
+		mediumText = pygame.font.Font(global_status['assets']['font2'],40)
+		mediumText.set_bold(True)
+		buttons = []
+		if global_status['menu']['state'] == 0:
+			
+			title = largeText.render('Quack', True, (255, 222, 65))
+			text_rect = title.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*0.5))
+			
+			button = buttonText.render('Play', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*1.75))
+			buttons.append([button, b_rect, 0])
+			button = buttonText.render('Settings', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.25))
+			buttons.append([button, b_rect, 1])
+			button = buttonText.render('Quit', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.75))
+			buttons.append([button, b_rect, 4])
+			button = smallText.render('Version 0.3 Alpha', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(120, global_status['settings']['display']['size'][1]-10))
+			buttons.append([button, b_rect, -1])
+			window.blit(title, text_rect)
 		else:
-			button = buttonText.render('[Off]', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/4*2.5, global_status['settings']['display']['size'][1]/4*1.25))
-		buttons.append([button, b_rect, 2])
-		button = buttonText.render('Back', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.5))
-		buttons.append([button, b_rect, 3])
-	# Draw Buttons
-	for button in buttons:
-		window.blit(button[0], button[1])
-		if button[1].colliderect(mouse_rect): 
-			ev = pygame.event.get()
-			for event in ev:
-				if event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
-					if button[2] == 0:
-						LevelLoad("Testing Level")
-						global_status['gamestate']['is_playing'] = True
-					elif button[2] == 1:
-						global_status['menu']['state'] = 1
-					elif button[2] == 2:
-						ToggleFullscreen()
-					elif button[2] == 3:
-						global_status['menu']['state'] = 0
+			button = mediumText.render('Settings', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4))
+			buttons.append([button, b_rect, 1])
+			button = buttonText.render('Fullscreen', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/4*1.5, global_status['settings']['display']['size'][1]/4*1.25))
+			buttons.append([button, b_rect, 1])
+			if global_status["settings"]["display"]["fullscreen"]:
+				button = buttonText.render('[On]', False, (255, 255, 255))
+			else:
+				button = buttonText.render('[Off]', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/4*2.5, global_status['settings']['display']['size'][1]/4*1.25))
+			buttons.append([button, b_rect, 2])
+			button = buttonText.render('Back', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.5))
+			buttons.append([button, b_rect, 3])
+		# Draw Buttons
+		for button in buttons:
+			window.blit(button[0], button[1])
+			if button[1].colliderect(mouse_rect): 
+				ev = pygame.event.get()
+				for event in ev:
+					if event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
+						if button[2] == 0:
+							LevelLoad("Testing Level")
+							global_status['gamestate']['is_playing'] = True
+						elif button[2] == 1:
+							global_status['menu']['state'] = 1
+						elif button[2] == 2:
+							ToggleFullscreen()
+						elif button[2] == 3:
+							global_status['menu']['state'] = 0
+						elif button[2] == 4:
+							global_status['process']['run'] = False
+	elif global_status['menu']['id'] == 1:
+		window.blit(global_status['assets']['opacity'], (0,0))
+		
 	#pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
 	#print(offset, y)
 # Função para renderização do Background do nivél
@@ -261,7 +286,7 @@ def DrawScene():
 				global_status['physics']['stiles'].append(pygame.Rect(x,
 						y + 56, 64, 58))
 			elif tile == '5':
-				global_status['physics']['stiles'].append(pygame.Rect(x,
+				global_status['physics']['sstiles'].append(pygame.Rect(x,
 						y - 128, 128, 256))
 				window.blit(global_status['assets'][Levels.get_block(tile)], (x, y - 128))
 			elif tile == '4':
@@ -371,7 +396,7 @@ def Quit():
 	while True:
 		pygame.event.pump()
 		event = pygame.event.wait()
-		if event.type == pygame.QUIT:
+		if event.type == pygame.QUIT or not global_status['process']['run']:
 			global_status['process']['run'] = False
 			print('Force Quit. (Code 0)')
 			exit(-1)
@@ -384,6 +409,7 @@ def LevelLoad(name):
 			files = listdir(level['Assets'])
 			for file in files:
 				if file.endswith(".png") or file.endswith(".jpg"):
+					#print(file.split(".")[0])
 					global_status["assets"][file.split(".")[0]] = pygame.transform.scale(pygame.image.load(f"{level['Assets']}/{file}"), global_status['settings']['display']['size']).convert()
 # Função do Loop Principal
 
@@ -400,11 +426,13 @@ def MainLoop():
 			window = pygame.display.set_mode((resize_event[0].w, resize_event[0].h), pygame.RESIZABLE)
 			if "back" in global_status["assets"]: global_status["assets"]["back"] = pygame.transform.scale(global_status["assets"]["back"], global_status['settings']['display']['size']).convert()
 			global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
+			global_status['assets']['opacity'] = global_status['assets']['opacity'] = pygame.transform.scale(pygame.image.load('assets/ui/opacity.png'), global_status["settings"]["display"]["size"])
 			pass
 		# Chama as funções principais
-		KeyWork()
 		DisplayRender()
-		CharPhysics()
+		KeyWork()
+		if not global_status["gamestate"]["is_paused"]:
+			CharPhysics()
 		# Atualiza o Frame
 		pygame.display.update()
 pygame.init()
@@ -413,8 +441,6 @@ icon = pygame.transform.scale(pygame.image.load('icon.png'), (32, 32))
 pygame.display.set_icon(icon)
 window = pygame.display.set_mode((1024, 640), pygame.RESIZABLE)
 pygame.display.set_caption('Quack!')
-global_status['gamestate']['is_playing'] = False
-global_status['gamestate']['is_paused'] = not global_status['gamestate']['is_playing']
 global_status['player']['speed_thread'] = \
 	threading.Thread(target=Speed_Thread, daemon=True)
 global_status['player']['sprite_lib']['moving']['thread'] = \
@@ -423,6 +449,7 @@ global_status['player']['sprite_lib']['moving']['thread'].start()
 global_status['player']['speed_thread'].start()
 threading.Thread(target=Quit, daemon=True).start()
 global_status["assets"]["mmback"] = pygame.transform.scale(global_status["assets"]["mmback"], global_status['settings']['display']['size']).convert()
+global_status['assets']['opacity'] = global_status['assets']['opacity'] = pygame.transform.scale(pygame.image.load('assets/ui/opacity.png'), global_status["settings"]["display"]["size"])
 try:
 	MainLoop()
 except KeyboardInterrupt:
