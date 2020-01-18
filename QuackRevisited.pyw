@@ -6,6 +6,7 @@ from os import listdir
 from math import floor
 from random import randint
 from time import sleep as wait
+from time import time
 from assets.levels.levels import Levels
 from win32api import GetSystemMetrics
 
@@ -13,6 +14,7 @@ from win32api import GetSystemMetrics
 
 global_status = { # Status do Jogo em si
 	'process': {'run': True},
+	'cache': {"pauseclick_span": 0},
 	'player': { # Status do Jogador
 		'tile': None, # Rect do Jogador
 		'offset': 0, # Posição relativa do Jogador em relação ao mapa - Câmera
@@ -83,10 +85,10 @@ def KeyWork():
 	if keys[pygame.K_F11]:
 		ToggleFullscreen()
 	if global_status["gamestate"]["is_playing"]:
-		if keys[pygame.K_ESCAPE]:
+		if keys[pygame.K_ESCAPE] and (time() - global_status["cache"]["pauseclick_span"]) > 0.2:
 			global_status["gamestate"]["is_paused"] = not global_status["gamestate"]["is_paused"]
 			global_status["menu"]["id"] = 1
-			wait(0.1)
+			global_status["cache"]["pauseclick_span"] = time()
 		if not global_status["gamestate"]["is_paused"]:
 			if keys[pygame.K_x]:
 				global_status["settings"]["draw_bound"] = True
@@ -235,7 +237,40 @@ def MenuDraw():
 							global_status['process']['run'] = False
 	elif global_status['menu']['id'] == 1:
 		window.blit(global_status['assets']['opacity'], (0,0))
+		# Buttons, Mouse and Size Points
+		screen_size = global_status['settings']['display']['size'][0]
+		a = pygame.mouse.get_pos()
+		mouse_rect = pygame.Rect(a[0]-5, a[1]-5, 10, 10)
+		buttons = []
 		
+		# Fonts
+		largeText = pygame.font.Font(global_status['assets']['font2'],40)
+		buttonText = pygame.font.Font(global_status['assets']['font2'],33)
+		smallText = pygame.font.Font(global_status['assets']['font2'],33)
+		mediumText = pygame.font.Font(global_status['assets']['font2'],40)
+		mediumText.set_bold(True)
+		
+		# Title
+		title = largeText.render('Paused', True, (255, 255, 255))
+		text_rect = title.get_rect(center=(100, 50))
+		window.blit(title, text_rect)
+		
+		# Buttons
+		button = buttonText.render('Quit', False, (255, 255, 255))
+		b_rect = button.get_rect(center=(100, global_status['settings']['display']['size'][1]/4*2.75))
+		buttons.append([button, b_rect, 0])
+		
+		# Button Handle
+		for button in buttons:
+			window.blit(button[0], button[1])
+			if button[1].colliderect(mouse_rect): 
+				ev = pygame.event.get()
+				for event in ev:
+					if event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
+						if button[2] == 0:
+							global_status['gamestate']['is_playing'] = False
+							global_status['gamestate']['is_paused'] = False
+							global_status['menu']['id'] = 0
 	#pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
 	#print(offset, y)
 # Função para renderização do Background do nivél
