@@ -19,14 +19,14 @@ global_status = { # Status do Jogo em si
 		'tile': None, # Rect do Jogador
 		'offset': 0, # Posição relativa do Jogador em relação ao mapa - Câmera
 		'pos': [0, 0], # Posição do Jogador
-		'max_sprintspeed': 9,
-		'max_normalspeed': 4.5,
-		'max_speed': 5,
+		'max_sprintspeed': 4,
+		'max_normalspeed': 3,
+		'max_speed': 3,
 		'fall_speed': 0,
 		'maxfall_speed': 6,
 		'speed': 1,
 		'speed_thread': None,
-		'increase_per_step': 0.50,
+		'increase_per_step': 1,
 		'walking': False, # Estado de movimentação X
 		'falling': False, # Estado de movimentação -Y
 		'sprite_lib': { # Sprites do Jogador
@@ -79,7 +79,6 @@ global_status = { # Status do Jogo em si
 	}
 # Função de administração do input das teclas
 
-
 def KeyWork():
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_F11]:
@@ -88,6 +87,7 @@ def KeyWork():
 		if keys[pygame.K_ESCAPE] and (time() - global_status["cache"]["pauseclick_span"]) > 0.2:
 			global_status["gamestate"]["is_paused"] = not global_status["gamestate"]["is_paused"]
 			global_status["menu"]["id"] = 1
+			global_status['menu']['state'] = 0
 			global_status["cache"]["pauseclick_span"] = time()
 		if not global_status["gamestate"]["is_paused"]:
 			if keys[pygame.K_x]:
@@ -108,7 +108,8 @@ def KeyWork():
 					global_status["player"]["pos"][0] -= global_status["player"]["speed"]
 				global_status["player"]["orientation"] = 1
 				global_status["player"]["walking"] = True
-				
+			elif keys[pygame.K_UP] or keys[pygame.K_SPACE]:
+				pass
 			elif keys[pygame.K_RIGHT] or keys[pygame.K_w]:#global_status["player"]["offset"] -= global_status["player"]["speed"]
 				if global_status["player"]["pos"][0] > global_status["settings"]["display"]["size"][0] - 100:
 
@@ -246,9 +247,6 @@ def MenuDraw():
 		# Fonts
 		largeText = pygame.font.Font(global_status['assets']['font2'],40)
 		buttonText = pygame.font.Font(global_status['assets']['font2'],33)
-		smallText = pygame.font.Font(global_status['assets']['font2'],33)
-		mediumText = pygame.font.Font(global_status['assets']['font2'],40)
-		mediumText.set_bold(True)
 		
 		# Title
 		title = largeText.render('Paused', True, (255, 255, 255))
@@ -256,10 +254,33 @@ def MenuDraw():
 		window.blit(title, text_rect)
 		
 		# Buttons
-		button = buttonText.render('Quit', False, (255, 255, 255))
-		b_rect = button.get_rect(center=(100, global_status['settings']['display']['size'][1]/4*2.75))
-		buttons.append([button, b_rect, 0])
-		
+		if global_status['menu']['state'] == 0:
+			button = buttonText.render('Quit to menu', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(90, global_status['settings']['display']['size'][1]-20))
+			buttons.append([button, b_rect, 0])
+			button = buttonText.render('Settings', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(240, global_status['settings']['display']['size'][1]-20))
+			buttons.append([button, b_rect, 1])
+			button = buttonText.render('Exit Game', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(370, global_status['settings']['display']['size'][1]-20))
+			buttons.append([button, b_rect, 2])
+		elif global_status['menu']['state'] == 1:
+			window.blit(global_status['assets']['opacity'], (0,0))
+			button = buttonText.render('Settings', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4))
+			buttons.append([button, b_rect, -1])
+			button = buttonText.render('Fullscreen', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/4*1.5, global_status['settings']['display']['size'][1]/4*1.25))
+			buttons.append([button, b_rect, -1])
+			if global_status["settings"]["display"]["fullscreen"]:
+				button = buttonText.render('[On]', False, (255, 255, 255))
+			else:
+				button = buttonText.render('[Off]', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/4*2.5, global_status['settings']['display']['size'][1]/4*1.25))
+			buttons.append([button, b_rect, 3])
+			button = buttonText.render('Back', False, (255, 255, 255))
+			b_rect = button.get_rect(center=(screen_size/2, global_status['settings']['display']['size'][1]/4*2.5))
+			buttons.append([button, b_rect, 4])
 		# Button Handle
 		for button in buttons:
 			window.blit(button[0], button[1])
@@ -271,6 +292,14 @@ def MenuDraw():
 							global_status['gamestate']['is_playing'] = False
 							global_status['gamestate']['is_paused'] = False
 							global_status['menu']['id'] = 0
+						elif button[2] == 1:
+							global_status['menu']['state'] = 1
+						elif button[2] == 2:
+							global_status["process"]["run"] = False
+						elif button[2] == 3:
+							ToggleFullscreen()
+						elif button[2] == 4:
+							global_status['menu']['state'] = 0
 	#pygame.draw.rect(window, (255, 0, 0), mouse_rect, 1)
 	#print(offset, y)
 # Função para renderização do Background do nivél
@@ -411,19 +440,22 @@ def Sprite_Thread():
 
 def Speed_Thread():
 	while global_status['process']['run']:
-		#  Verifica o status de movimento X.
+		# Verifica o status de movimento X.
 		if global_status['player']['walking']:
+			if not a:
+				a = 35
 			# Verifica a possibilidade de alteração de Velocidade
-			if global_status['player']['speed'] < global_status['player'
-					]['max_speed']:
+			if global_status['player']['speed'] < global_status['player']['max_speed']:
+				if a > 1:
+					a -= 0.5
 				wait(0.03)
 				# Altera a Velocidade
-				global_status['player']['speed'] += \
-					global_status['player']['increase_per_step']
+				global_status['player']['speed'] += global_status['player']['increase_per_step']/a
 		elif global_status['player']['speed'] != 1:
 			# Reseta a Velocidade para 1, em prol da manteneção dos cálculos futuros.
 			global_status['player']['speed'] = 1
-
+		else:
+			a = 10
 
 # Função de Saida.
 
@@ -446,6 +478,7 @@ def LevelLoad(name):
 				if file.endswith(".png") or file.endswith(".jpg"):
 					#print(file.split(".")[0])
 					global_status["assets"][file.split(".")[0]] = pygame.transform.scale(pygame.image.load(f"{level['Assets']}/{file}"), global_status['settings']['display']['size']).convert()
+	global_status["player"]["pos"] = [0, 0]
 # Função do Loop Principal
 
 def MainLoop():
@@ -453,7 +486,7 @@ def MainLoop():
 	#print("[@] Loading Testing Level")
 	#LevelLoad("Testing Level")
 	while global_status['process']['run']:
-		clock.tick(70)
+		clock.tick(90)
 		resize_event = pygame.event.get(pygame.VIDEORESIZE)
 		if resize_event:
 			global_status["player"]["pos"][1] += resize_event[0].h-global_status["settings"]["display"]["size"][1]
